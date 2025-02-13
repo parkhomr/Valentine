@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Собери сердца</title>
+    <style>
+        body {
+            text-align: center;
+            font-family: Arial, sans-serif;
+            background-color: pink;
+        }
+        #gameContainer, #targetGame {
+            position: relative;
+            width: 400px;
+            height: 600px;
+            margin: auto;
+            overflow: hidden;
+            background: white;
+            border: 2px solid red;
+        }
+        #message, #targetMessage {
+            font-size: 24px;
+            margin-top: 20px;
+            display: none;
+        }
+        .button {
+            display: none;
+            margin-top: 10px;
+            padding: 10px 20px;
+            font-size: 18px;
+            background-color: red;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        #scoreCounter, #targetScoreCounter {
+            font-size: 20px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        .hidden {
+            display: none;
+        }
+    .styled-button {
+            background-color: #ff69b4;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 20px;
+            margin: 10px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: transform 0.2s, background-color 0.3s;
+        }
+        .styled-button:hover {
+            background-color: #ff1493;
+            transform: scale(1.1);
+        }
+        .styled-button:active {
+            transform: scale(0.9);
+        }
+    </style>
+</head>
+<body>
+    <h1>Собери сердца 💖</h1>
+    <p>Нажимай на падающие сердечки!</p>
+    <div id="gameContainer"></div>
+    <div id="scoreCounter">Собрано сердец: 0</div>
+    <div id="message">Отлично! Теперь нужно попасть в сердце 3 раза 🎯</div>
+    
+    <div id="targetGame" class="hidden">
+        <h2>Попади в сердце 💘</h2>
+        <div id="bigHeart" style="position: absolute; font-size: 40px;">❤️</div>
+        <div id="targetScoreCounter">Попаданий: 0 / 3</div>
+    </div>
+    
+    <button class="button hidden" id="nextGame">Начать вторую игру</button>
+    <button class="button hidden" id="finalButton">Ты моя Валентинка! ❤️</button>
+    
+    <script>
+        const gameContainer = document.getElementById("gameContainer");
+        const targetGame = document.getElementById("targetGame");
+        let score = 0;
+        const targetScore = 20;
+        
+        function createHeart() {
+            const heart = document.createElement("div");
+            heart.innerHTML = "❤️";
+            heart.style.position = "absolute";
+            heart.style.left = Math.random() * (gameContainer.clientWidth - 30) + "px";
+            heart.style.top = "0px";
+            heart.style.fontSize = "24px";
+            heart.style.cursor = "pointer";
+            gameContainer.appendChild(heart);
+            
+            let speed = 1 + Math.random() * 1.5;
+            
+            function fall() {
+                let top = parseFloat(heart.style.top);
+                if (top < gameContainer.clientHeight - 30) {
+                    heart.style.top = (top + speed) + "px";
+                    requestAnimationFrame(fall);
+                } else {
+                    gameContainer.removeChild(heart);
+                }
+            }
+            
+            heart.addEventListener("click", function() {
+                score++;
+                document.getElementById("scoreCounter").innerText = `Собрано сердец: ${score}`;
+                gameContainer.removeChild(heart);
+                if (score >= targetScore) {
+                    document.getElementById("message").style.display = "block";
+                    document.getElementById("nextGame").click();
+                }
+            });
+            
+            fall();
+        }
+        
+        function spawnHearts() {
+            setInterval(createHeart, 1000);
+        }
+        
+        spawnHearts();
+        
+        document.getElementById("nextGame").addEventListener("click", function() {
+            gameContainer.classList.add("hidden");
+            targetGame.classList.remove("hidden");
+            document.getElementById("message").classList.add("hidden");
+            this.classList.add("hidden");
+            startTargetGame();
+        });
+        
+        function startTargetGame() {
+            let hits = 0;
+            const bigHeart = document.getElementById("bigHeart");
+            let x = 150, y = 250;
+            let dx = 2, dy = 2;
+            
+            function moveHeart() {
+                x += dx;
+                y += dy;
+                
+                if (x <= 0 || x >= targetGame.clientWidth - 80) dx *= -1;
+                if (y <= 0 || y >= targetGame.clientHeight - 80) dy *= -1;
+                
+                bigHeart.style.left = `${x}px`;
+                bigHeart.style.top = `${y}px`;
+                requestAnimationFrame(moveHeart);
+            }
+            
+            moveHeart();
+            
+            targetGame.addEventListener("click", function(event) {
+                const dart = document.createElement("div");
+                dart.innerHTML = "💘";
+                dart.style.position = "absolute";
+                dart.style.left = event.clientX - 10 + "px";
+                dart.style.top = event.clientY - 10 + "px";
+                dart.style.fontSize = "30px";
+                targetGame.appendChild(dart);
+                
+                setTimeout(() => targetGame.removeChild(dart), 500);
+                
+                const rect = bigHeart.getBoundingClientRect();
+                if (event.clientX > rect.left && event.clientX < rect.right && event.clientY > rect.top && event.clientY < rect.bottom) {
+                    hits++;
+                    document.getElementById("targetScoreCounter").innerText = `Попаданий: ${hits} / 3`;
+                    if (hits >= 3) {
+                        document.body.innerHTML = '<h1>Ты будешь моей Валентинкой? ❤️</h1><button id="yesButton" class="styled-button">Да</button> <button id="sureButton" class="styled-button">Конечно!</button>';
+                        document.getElementById("yesButton").addEventListener("click", showLoveMessage);
+                        document.getElementById("sureButton").addEventListener("click", showLoveMessage);
+                        function showLoveMessage() {
+                            document.body.innerHTML = '<h1>Ура! Люблю тебя моя валентинка ❤️</h1><img src="https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExZHNqenJtMm9udXFpMnV4YXFoaG9kN2psMTh6ZmFhdnl1Ynl3NHFkYiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/c76IJLufpNwSULPk77/giphy.gif" alt="Любовь">';
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
