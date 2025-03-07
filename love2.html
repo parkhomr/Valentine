@@ -64,10 +64,10 @@
 </head>
 <body>
     <h1>Собери сердца 💖</h1>
-    <p>Нажимай на падающие сердечки!</p>
+    <p>Нажимай на падающие сердечки! Нужно собрать 20</p>
     <div id="gameContainer"></div>
     <div id="scoreCounter">Собрано сердец: 0</div>
-    <div id="message">Отлично! Теперь нужно попасть в сердце 3 раза 🎯</div>
+    <div id="message">Теперь нужно попасть в сердце 🎯</div>
     
     <div id="targetGame" class="hidden">
         <h2>Попади в сердце 💘</h2>
@@ -86,7 +86,8 @@
         
         function createHeart() {
             const heart = document.createElement("div");
-            heart.innerHTML = "❤️";
+            const heartEmojis = ["❤️", "💖", "💘", "💝", "💕", "💞", "💟"];
+            heart.innerHTML = heartEmojis[Math.floor(Math.random() * heartEmojis.length)];
             heart.style.position = "absolute";
             heart.style.left = Math.random() * (gameContainer.clientWidth - 30) + "px";
             heart.style.top = "0px";
